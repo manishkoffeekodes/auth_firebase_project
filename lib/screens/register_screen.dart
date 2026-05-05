@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../services/auth_service.dart';
 import '../utils/app_theme.dart';
+import '../utils/ui_helpers.dart';
 import '../widgets/common_widgets.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -58,20 +61,82 @@ class _RegisterScreenState extends State<RegisterScreen>
   void _onRegister() async {
     if (!_formKey.currentState!.validate()) return;
     if (!_agreeToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please agree to Terms & Conditions'),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
+      showAppSnackBar(context, 'Please agree to Terms & Conditions',
+          isError: true);
       return;
     }
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) setState(() => _isLoading = false);
+    try {
+      await AuthService.registerWithEmail(
+        email: _emailCtrl.text.trim(),
+        password: _passwordCtrl.text,
+        displayName:
+            '${_firstNameCtrl.text.trim()} ${_lastNameCtrl.text.trim()}',
+      );
+      await AuthService.signOut();
+      if (mounted) {
+        showAppSnackBar(context, 'Account created! Please sign in.',
+            isError: false);
+        await Future.delayed(const Duration(milliseconds: 700));
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      final msg = e.toString();
+      if (msg == 'ACCOUNT_EXISTS') {
+        showAppSnackBar(context, 'Account already exists, try Logging in',
+            isError: true);
+      } else {
+        showAppSnackBar(context, msg, isError: true);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
+
+  void _signInWithGoogle() async {
+    setState(() => _isLoading = true);
+    try {
+      final result = await AuthService.signInWithGoogle();
+      if (result == null) {
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
+
+      if (!result.isNewUser) {
+        await AuthService.signOut();
+        if (mounted) {
+          showAppSnackBar(
+            context,
+            'Account already exists, try Logging in',
+            isError: true,
+          );
+        }
+        return;
+      }
+
+      await AuthService.signOut();
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          'Google account registered! Please sign in.',
+          isError: false,
+        );
+        await Future.delayed(const Duration(milliseconds: 700));
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      final msg = e.toString();
+      if (msg == 'ACCOUNT_EXISTS') {
+        showAppSnackBar(context, 'Account already exists, try Logging in',
+            isError: true);
+      } else {
+        if (mounted) showAppSnackBar(context, msg, isError: true);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -261,46 +326,52 @@ class _RegisterScreenState extends State<RegisterScreen>
                                   const SizedBox(height: 16),
 
                                   // Terms checkbox
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Transform.scale(
-                                        scale: 1.1,
-                                        child: Checkbox(
-                                          value: _agreeToTerms,
-                                          onChanged: (v) =>
-                                              setState(() => _agreeToTerms = v ?? false),
-                                          activeColor: AppColors.gold,
-                                          checkColor: AppColors.background,
-                                          side: const BorderSide(color: AppColors.cardBorder),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(4),
+                                  GestureDetector(
+                                    onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: Checkbox(
+                                            value: _agreeToTerms,
+                                            onChanged: (v) =>
+                                                setState(() => _agreeToTerms = v ?? false),
+                                            activeColor: AppColors.gold,
+                                            checkColor: AppColors.background,
+                                            materialTapTargetSize:
+                                                MaterialTapTargetSize.shrinkWrap,
+                                            visualDensity: VisualDensity.compact,
+                                            side: const BorderSide(
+                                                color: AppColors.cardBorder, width: 1.5),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(4),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(top: 12),
+                                        const SizedBox(width: 10),
+                                        Expanded(
                                           child: RichText(
                                             text: TextSpan(
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 color: AppColors.textSecondary,
                                                 fontSize: 12,
+                                                height: 1.4,
                                               ),
                                               children: [
                                                 const TextSpan(text: 'I agree to the '),
-                                                TextSpan(
+                                                const TextSpan(
                                                   text: 'Terms & Conditions',
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                     color: AppColors.gold,
                                                     fontWeight: FontWeight.w600,
                                                   ),
                                                 ),
                                                 const TextSpan(text: ' and '),
-                                                TextSpan(
+                                                const TextSpan(
                                                   text: 'Privacy Policy',
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                     color: AppColors.gold,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -309,8 +380,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                   const SizedBox(height: 16),
 
@@ -332,41 +403,30 @@ class _RegisterScreenState extends State<RegisterScreen>
                                   const OrDivider(),
                                   const SizedBox(height: 20),
 
-                                  // Social Buttons Row 1
+                                  // Social Buttons — 3 equal columns
                                   Row(
                                     children: [
                                       SocialButton(
-                                        icon: Icons.g_mobiledata_rounded,
+                                        faIcon: FontAwesomeIcons.google,
                                         color: AppColors.google,
                                         label: 'Google',
-                                        onPressed: () {},
+                                        onPressed: _signInWithGoogle,
                                       ),
                                       const SizedBox(width: 10),
                                       SocialButton(
-                                        icon: Icons.facebook_rounded,
+                                        faIcon: FontAwesomeIcons.squareFacebook,
                                         color: AppColors.facebook,
                                         label: 'Facebook',
                                         onPressed: () {},
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-
-                                  // Twitter centered
-                                  Center(
-                                    child: SizedBox(
-                                      width: 160,
-                                      child: Row(
-                                        children: [
-                                          SocialButton(
-                                            icon: Icons.alternate_email_rounded,
-                                            color: AppColors.twitter,
-                                            label: 'Twitter',
-                                            onPressed: () {},
-                                          ),
-                                        ],
+                                      const SizedBox(width: 10),
+                                      SocialButton(
+                                        faIcon: FontAwesomeIcons.xTwitter,
+                                        color: AppColors.twitter,
+                                        label: '',
+                                        onPressed: () {},
                                       ),
-                                    ),
+                                    ],
                                   ),
                                 ],
                               ),

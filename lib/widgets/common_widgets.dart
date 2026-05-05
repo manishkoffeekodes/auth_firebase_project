@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../utils/app_theme.dart';
 
 class AppLogoWidget extends StatelessWidget {
@@ -120,18 +121,20 @@ class GradientButton extends StatelessWidget {
 }
 
 class SocialButton extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final IconData? faIcon;
   final Color color;
   final String label;
   final VoidCallback onPressed;
 
   const SocialButton({
     super.key,
-    required this.icon,
+    this.icon,
+    this.faIcon,
     required this.color,
     required this.label,
     required this.onPressed,
-  });
+  }) : assert(icon != null || faIcon != null, 'Provide either icon or faIcon');
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +152,9 @@ class SocialButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: color, size: 20),
+              faIcon != null
+                  ? FaIcon(faIcon!, color: color, size: 18)
+                  : Icon(icon!, color: color, size: 20),
               const SizedBox(width: 6),
               Text(
                 label,

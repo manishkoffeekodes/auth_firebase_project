@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../services/auth_service.dart';
 import '../utils/app_theme.dart';
+import '../utils/ui_helpers.dart';
 import '../widgets/common_widgets.dart';
+import 'home_screen.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 
@@ -46,8 +50,109 @@ class _LoginScreenState extends State<LoginScreen>
   void _onLogin() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2)); // Simulate API call
-    if (mounted) setState(() => _isLoading = false);
+    try {
+      await AuthService.loginWithEmail(
+        email: _emailCtrl.text.trim(),
+        password: _passwordCtrl.text,
+      );
+      if (mounted) {
+        showAppSnackBar(context, 'Welcome back! 🎉', isError: false);
+        await Future.delayed(const Duration(milliseconds: 400));
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (_) => false,
+        );
+      }
+    } catch (e) {
+      final msg = e.toString();
+      if (msg == 'ACCOUNT_NOT_FOUND') {
+        _showAccountNotFoundBar();
+      } else {
+        if (mounted) showAppSnackBar(context, msg, isError: true);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _signInWithGoogle() async {
+    setState(() => _isLoading = true);
+    try {
+      final result = await AuthService.signInWithGoogle();
+      if (result == null) {
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
+      if (result.isNewUser) {
+        // 🚫 No registration found — DELETE the auto-created Firebase account
+        // and sign out. Without delete(), the account persists and the SECOND
+        // attempt would have isNewUser=false, silently logging them in.
+        await result.credential.user?.delete();
+        await AuthService.signOutGoogle();
+        if (mounted) {
+          _showAccountNotFoundBar();
+        }
+        return;
+      }
+      // ✅ Existing registered user — go to Home
+      if (mounted) {
+        showAppSnackBar(context, 'Welcome back! 🎉', isError: false);
+        await Future.delayed(const Duration(milliseconds: 400));
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (_) => false,
+        );
+      }
+    } catch (e) {
+      final msg = e.toString();
+      if (msg == 'ACCOUNT_NOT_FOUND') {
+        _showAccountNotFoundBar();
+      } else {
+        if (mounted) showAppSnackBar(context, msg, isError: true);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+
+  /// Special snackbar with a 'Register' action button
+  void _showAccountNotFoundBar() {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: const Text('Account not found, create new Account!'),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(milliseconds: 2500),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          action: SnackBarAction(
+            label: 'Register',
+            textColor: Colors.white,
+            onPressed: () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (_, __, ___) => const RegisterScreen(),
+                  transitionDuration: const Duration(milliseconds: 400),
+                  transitionsBuilder: (_, anim, __, child) => SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1.0, 0),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                        parent: anim, curve: Curves.easeOut)),
+                    child: child,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
   }
 
   @override
@@ -212,41 +317,30 @@ class _LoginScreenState extends State<LoginScreen>
                                   const OrDivider(),
                                   const SizedBox(height: 20),
 
-                                  // Social Buttons Row 1: Google + Facebook
+                                  // Social Buttons — 3 equal columns
                                   Row(
                                     children: [
                                       SocialButton(
-                                        icon: Icons.g_mobiledata_rounded,
+                                        faIcon: FontAwesomeIcons.google,
                                         color: AppColors.google,
                                         label: 'Google',
-                                        onPressed: () {},
+                                        onPressed: _signInWithGoogle,
                                       ),
                                       const SizedBox(width: 10),
                                       SocialButton(
-                                        icon: Icons.facebook_rounded,
+                                        faIcon: FontAwesomeIcons.squareFacebook,
                                         color: AppColors.facebook,
                                         label: 'Facebook',
                                         onPressed: () {},
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-
-                                  // Twitter row centered
-                                  Center(
-                                    child: SizedBox(
-                                      width: 160,
-                                      child: Row(
-                                        children: [
-                                          SocialButton(
-                                            icon: Icons.alternate_email_rounded,
-                                            color: AppColors.twitter,
-                                            label: 'Twitter',
-                                            onPressed: () {},
-                                          ),
-                                        ],
+                                      const SizedBox(width: 10),
+                                      SocialButton(
+                                        faIcon: FontAwesomeIcons.xTwitter,
+                                        color: AppColors.twitter,
+                                        label: '',
+                                        onPressed: () {},
                                       ),
-                                    ),
+                                    ],
                                   ),
                                 ],
                               ),
