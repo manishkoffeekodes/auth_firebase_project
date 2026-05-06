@@ -1,12 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
-/// Wrapper returned by signInWithGoogle so callers know if this was a new registration
-class GoogleSignInResult {
+/// Wrapper returned by social sign-ins so callers know if this was a new registration
+class SocialSignInResult {
   final UserCredential credential;
   final bool isNewUser;
 
-  GoogleSignInResult({required this.credential, required this.isNewUser});
+  SocialSignInResult({required this.credential, required this.isNewUser});
 }
 
 class AuthService {
@@ -19,8 +20,8 @@ class AuthService {
   static Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   // ── Google Sign-In ────────────────────────────────────────────
-  /// Returns null if user cancelled, otherwise [GoogleSignInResult]
-  static Future<GoogleSignInResult?> signInWithGoogle() async {
+  /// Returns null if user cancelled, otherwise [SocialSignInResult]
+  static Future<SocialSignInResult?> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return null; // User cancelled
@@ -39,11 +40,39 @@ class AuthService {
       // was seen for the first time in this Firebase project
       final isNew = userCredential.additionalUserInfo?.isNewUser ?? false;
 
-      return GoogleSignInResult(credential: userCredential, isNewUser: isNew);
+      return SocialSignInResult(credential: userCredential, isNewUser: isNew);
     } on FirebaseAuthException catch (e) {
       throw _authException(e);
     } catch (e) {
       throw 'Google Sign-In failed. Please try again.';
+    }
+  }
+
+  // ── Facebook Sign-In ──────────────────────────────────────────
+  /// Returns null if user cancelled, otherwise [SocialSignInResult]
+  static Future<SocialSignInResult?> signInWithFacebook() async {
+    try {
+      final LoginResult loginResult = await FacebookAuth.instance.login(
+        permissions: ['email', 'public_profile'],
+      );
+
+      if (loginResult.status == LoginStatus.cancelled) return null;
+      if (loginResult.status != LoginStatus.success) {
+        throw 'Facebook Sign-In failed: ${loginResult.message}';
+      }
+
+      final OAuthCredential credential = FacebookAuthProvider.credential(
+        loginResult.accessToken!.tokenString,
+      );
+
+      final userCredential = await _auth.signInWithCredential(credential);
+      final isNew = userCredential.additionalUserInfo?.isNewUser ?? false;
+
+      return SocialSignInResult(credential: userCredential, isNewUser: isNew);
+    } on FirebaseAuthException catch (e) {
+      throw _authException(e);
+    } catch (e) {
+      throw 'Facebook Sign-In failed. Please try again.';
     }
   }
 
@@ -83,6 +112,7 @@ class AuthService {
   // ── Sign Out (full) ───────────────────────────────────────────
   static Future<void> signOut() async {
     await _googleSignIn.signOut();
+    await FacebookAuth.instance.logOut();
     await _auth.signOut();
   }
 
@@ -91,6 +121,11 @@ class AuthService {
   /// is already cleared by delete(), we only need to clear Google's cache.
   static Future<void> signOutGoogle() async {
     await _googleSignIn.signOut();
+  }
+
+  // ── Sign Out Facebook session only ────────────────────────────
+  static Future<void> signOutFacebook() async {
+    await FacebookAuth.instance.logOut();
   }
 
   // ── Error Helper ──────────────────────────────────────────────

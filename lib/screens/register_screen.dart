@@ -137,6 +137,50 @@ class _RegisterScreenState extends State<RegisterScreen>
     }
   }
 
+  void _signInWithFacebook() async {
+    setState(() => _isLoading = true);
+    try {
+      final result = await AuthService.signInWithFacebook();
+      if (result == null) {
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
+
+      if (!result.isNewUser) {
+        await AuthService.signOut();
+        if (mounted) {
+          showAppSnackBar(
+            context,
+            'Account already exists, try Logging in',
+            isError: true,
+          );
+        }
+        return;
+      }
+
+      await AuthService.signOut();
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          'Facebook account registered! Please sign in.',
+          isError: false,
+        );
+        await Future.delayed(const Duration(milliseconds: 700));
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      final msg = e.toString();
+      if (msg == 'ACCOUNT_EXISTS') {
+        showAppSnackBar(context, 'Account already exists, try Logging in',
+            isError: true);
+      } else {
+        if (mounted) showAppSnackBar(context, msg, isError: true);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -417,7 +461,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                                         faIcon: FontAwesomeIcons.squareFacebook,
                                         color: AppColors.facebook,
                                         label: 'Facebook',
-                                        onPressed: () {},
+                                        onPressed: _signInWithFacebook,
                                       ),
                                       const SizedBox(width: 10),
                                       SocialButton(
