@@ -14,6 +14,23 @@ class AppColors {
   static const Color greenDark     = Color(0xFF00952F);
   static const Color neonGreen     = Color(0xFF39FF14); // Added neon green
 
+  // Stitch UI Colors
+  static const Color stitchBackground = Color(0xFF131313);
+  static const Color stitchSurface = Color(0xFF131313);
+  static const Color stitchSurfaceVariant = Color(0xFF353534);
+  static const Color stitchSurfaceContainerLow = Color(0xFF1C1B1B);
+  static const Color stitchSurfaceContainer = Color(0xFF201F1F);
+  static const Color stitchSurfaceContainerHigh = Color(0xFF2A2A2A);
+  static const Color stitchSurfaceContainerHighest = Color(0xFF353534);
+  static const Color stitchOnSurface = Color(0xFFE5E2E1);
+  static const Color stitchOnSurfaceVariant = Color(0xFFBACCB0);
+  static const Color stitchPrimary = Color(0xFFEFFFE3);
+  static const Color stitchPrimaryContainer = Color(0xFF39FF14);
+  static const Color stitchOnPrimaryContainer = Color(0xFF107100);
+  static const Color stitchError = Color(0xFFFFB4AB);
+  static const Color stitchErrorContainer = Color(0xFF93000A);
+  static const Color stitchOutlineVariant = Color(0xFF3C4B35);
+
   // Social
   static const Color google        = Color(0xFFDB4437);
   static const Color facebook      = Color(0xFF1877F2);

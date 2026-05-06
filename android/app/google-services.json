@@ -7,12 +7,25 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1096303081679:android:16307af80d9644c7be1fba",
+        "mobilesdk_app_id": "1:1096303081679:android:233bafb639162462be1fba",
         "android_client_info": {
           "package_name": "com.finance.matka.trading"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1096303081679-qv2d50d2r6ahbv4cn336ral153boaafe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.finance.matka.trading",
+            "certificate_hash": "4781b093a5cab3bbdfa385cc0695ece49113d056"
+          }
+        },
+        {
+          "client_id": "1096303081679-apmeqgeojlaq8fe9i8nfi00bnlij1tve.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDNimwqeg8Wq6jDOSHocEzb0I2VmOvfX78"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1096303081679-apmeqgeojlaq8fe9i8nfi00bnlij1tve.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1096303081679-mv4rnb7ldod13bocgl0tgl4tb17l9t11.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.authFirebaseProject"
+              }
+            }
+          ]
         }
       }
     }

@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDNimwqeg8Wq6jDOSHocEzb0I2VmOvfX78',
-    appId: '1:1096303081679:android:16307af80d9644c7be1fba',
+    appId: '1:1096303081679:android:233bafb639162462be1fba',
     messagingSenderId: '1096303081679',
     projectId: 'auth-firebse-project-2026',
     storageBucket: 'auth-firebse-project-2026.firebasestorage.app',
@@ -63,6 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1096303081679',
     projectId: 'auth-firebse-project-2026',
     storageBucket: 'auth-firebse-project-2026.firebasestorage.app',
+    androidClientId: '1096303081679-i04gch1revp017dm957slvred3ehak99.apps.googleusercontent.com',
+    iosClientId: '1096303081679-mv4rnb7ldod13bocgl0tgl4tb17l9t11.apps.googleusercontent.com',
     iosBundleId: 'com.example.authFirebaseProject',
   );
 
@@ -72,6 +74,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1096303081679',
     projectId: 'auth-firebse-project-2026',
     storageBucket: 'auth-firebse-project-2026.firebasestorage.app',
+    androidClientId: '1096303081679-i04gch1revp017dm957slvred3ehak99.apps.googleusercontent.com',
+    iosClientId: '1096303081679-mv4rnb7ldod13bocgl0tgl4tb17l9t11.apps.googleusercontent.com',
     iosBundleId: 'com.example.authFirebaseProject',
   );
 
@@ -83,4 +87,5 @@ class DefaultFirebaseOptions {
     authDomain: 'auth-firebse-project-2026.firebaseapp.com',
     storageBucket: 'auth-firebse-project-2026.firebasestorage.app',
   );
+
 }
