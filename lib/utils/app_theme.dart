@@ -30,6 +30,8 @@ class AppColors {
   static const Color stitchError = Color(0xFFFFB4AB);
   static const Color stitchErrorContainer = Color(0xFF93000A);
   static const Color stitchOutlineVariant = Color(0xFF3C4B35);
+  static const Color stitchSecondary = Color(0xFFC8C6C5);
+  static const Color stitchPrimaryFixed = Color(0xFF79FF5B);
 
   // Social
   static const Color google        = Color(0xFFDB4437);
