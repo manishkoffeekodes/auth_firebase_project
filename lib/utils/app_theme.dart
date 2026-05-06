@@ -12,6 +12,7 @@ class AppColors {
   static const Color goldLight     = Color(0xFFFFE566);
   static const Color green         = Color(0xFF00C853);
   static const Color greenDark     = Color(0xFF00952F);
+  static const Color neonGreen     = Color(0xFF39FF14); // Added neon green
 
   // Social
   static const Color google        = Color(0xFFDB4437);

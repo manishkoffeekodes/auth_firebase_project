@@ -1,4 +1,4 @@
-package com.example.auth_firebase_project
+package com.finance.matka.trading
 
 import io.flutter.embedding.android.FlutterActivity
 

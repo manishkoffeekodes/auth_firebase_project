@@ -1,4 +1,4 @@
-pluginManagement {
+.\gradlew signingReportpluginManagement {
     val flutterSdkPath =
         run {
             val properties = java.util.Properties()

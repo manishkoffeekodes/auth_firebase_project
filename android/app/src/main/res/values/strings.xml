@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MatkaTrading</string>
+    <string name="facebook_app_id">1555717249448424</string>
+    <string name="fb_login_protocol_scheme">fb1555717249448424</string>
+    <string name="facebook_client_token">d2b50b0cdf405a5a42b12484ce6f42e0</string>
+</resources>

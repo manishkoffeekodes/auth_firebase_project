@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1096303081679:android:16307af80d9644c7be1fba",
         "android_client_info": {
-          "package_name": "com.example.auth_firebase_project"
+          "package_name": "com.finance.matka.trading"
         }
       },
       "oauth_client": [],

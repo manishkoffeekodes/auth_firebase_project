@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../utils/app_theme.dart';
 import '../widgets/common_widgets.dart';
+import '../services/auth_service.dart';
 import 'login_screen.dart';
+import 'home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -40,9 +42,10 @@ class _SplashScreenState extends State<SplashScreen>
 
     Timer(const Duration(seconds: 3), () {
       if (mounted) {
+        final isLoggedIn = AuthService.currentUser != null;
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (_, __, ___) => const LoginScreen(),
+            pageBuilder: (_, __, ___) => isLoggedIn ? const HomeScreen() : const LoginScreen(),
             transitionDuration: const Duration(milliseconds: 600),
             transitionsBuilder: (_, anim, __, child) {
               return FadeTransition(opacity: anim, child: child);
