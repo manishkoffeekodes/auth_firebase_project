@@ -94,8 +94,10 @@ class AuthService {
       if (e.code == 'web-context-cancelled' || e.code == 'web-context-canceled') {
         return null;
       }
+      log("e:- ${e}");
       throw _authException(e);
     } catch (e) {
+
       throw 'Twitter Sign-In failed. Please try again.';
     }
   }
