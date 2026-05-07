@@ -156,6 +156,44 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  void _signInWithTwitter() async {
+    setState(() => _isLoading = true);
+    try {
+      final result = await AuthService.signInWithTwitter();
+      if (result == null) {
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
+      if (result.isNewUser) {
+        // 🚫 No registration found — DELETE the auto-created Firebase account
+        await result.credential.user?.delete();
+        await AuthService.signOut();
+        if (mounted) {
+          _showAccountNotFoundBar();
+        }
+        return;
+      }
+      // ✅ Existing registered user — go to Home
+      if (mounted) {
+        showAppSnackBar(context, 'Welcome back! 🎉', isError: false);
+        await Future.delayed(const Duration(milliseconds: 400));
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (_) => false,
+        );
+      }
+    } catch (e) {
+      final msg = e.toString();
+      if (msg == 'ACCOUNT_NOT_FOUND') {
+        _showAccountNotFoundBar();
+      } else {
+        if (mounted) showAppSnackBar(context, msg, isError: true);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   /// Special snackbar with a 'Register' action button
   void _showAccountNotFoundBar() {
@@ -375,9 +413,9 @@ class _LoginScreenState extends State<LoginScreen>
                                       const SizedBox(width: 10),
                                       SocialButton(
                                         faIcon: FontAwesomeIcons.xTwitter,
-                                        color: AppColors.twitter,
-                                        label: '',
-                                        onPressed: () {},
+                                        color: AppColors.textPrimary, // Changed color from AppColors.twitter since Twitter X is black/white
+                                        label: 'Twitter',
+                                        onPressed: _signInWithTwitter,
                                       ),
                                     ],
                                   ),

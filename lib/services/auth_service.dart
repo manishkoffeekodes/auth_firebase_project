@@ -79,6 +79,27 @@ class AuthService {
     }
   }
 
+  // ── Twitter Sign-In ──────────────────────────────────────────
+  /// Returns null if user cancelled, otherwise [SocialSignInResult]
+  static Future<SocialSignInResult?> signInWithTwitter() async {
+    try {
+      final twitterProvider = TwitterAuthProvider();
+      final userCredential = await _auth.signInWithProvider(twitterProvider);
+      
+      final isNew = userCredential.additionalUserInfo?.isNewUser ?? false;
+      return SocialSignInResult(credential: userCredential, isNewUser: isNew);
+    } on FirebaseAuthException catch (e) {
+      // If the user cancels the web flow, it might throw a specific error,
+      // but usually we can just handle it gracefully.
+      if (e.code == 'web-context-cancelled' || e.code == 'web-context-canceled') {
+        return null;
+      }
+      throw _authException(e);
+    } catch (e) {
+      throw 'Twitter Sign-In failed. Please try again.';
+    }
+  }
+
   // ── Email & Password Register ─────────────────────────────────
   static Future<UserCredential> registerWithEmail({
     required String email,
